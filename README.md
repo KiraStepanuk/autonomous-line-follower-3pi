@@ -2,12 +2,11 @@
 
 🏆 **1st Place Winner** at the **Robo Intelligence 2026** competition (2D-trace category).  
 ⏱️ **Official Lap Time:** **13.88 seconds**  
-🎓 **Academic Recognition:** **0.5 ECTS credits** awarded for workload and performance.
 
-*(Optional: Insert your robot run GIF here once you make it)*
-<!-- ![Robot Run Demo](assets/run_demo.gif) -->
+![Robot Run Demo](assets/run_demo.gif)
 
----
+
+--
 
 ## 🏁 Track Specifications & Performance
 
@@ -17,10 +16,6 @@ The robot was optimized for the official competition track layout shown below:
   <img src="assets/track_layout.png" alt="Track Layout" width="500"/>
 </p>
 
-### Key Performance Metrics:
-* **Best Lap Time:** **13.88 seconds**
-* **Average Speed:** ~1.1 m/s (based on average track lengths)
-* **Stability Rate:** 100% (0 reboots, 0 track losses during official runs)
 
 The track features a mix of high-speed straight lines, where the robot actively boosted speed up to **235 PWM**, and consecutive tight S-curves, where the dynamic braking algorithm successfully maintained stability by dropping speed down to **95 PWM**.
 
@@ -29,12 +24,11 @@ The track features a mix of high-speed straight lines, where the robot actively 
 ## 🔴 The Hardware Challenge: Brown-out Reset (BOR)
 During testing, the Pololu 3pi robot suffered from electrical instability:
 * **Static Stability:** High. The robot could run at 100% motor power (255 PWM units) under linear acceleration.
-* **Dynamic Stability:** Low. Rapid changes in motor direction (sudden reverse) or instant acceleration caused the battery power rail voltage to drop below **2.7V**.
-* **Consequence:** This voltage drop triggered a **Brown-out Reset (BOR)**, causing the ATmega328P microcontroller to reboot mid-race.
+* **Dynamic Stability:** Low. Rapid changes in motor direction (sudden reverse) or instant acceleration caused the battery power rail voltage to drop below **2.7V**. This voltage drop triggered a **Brown-out Reset (BOR)**, causing the ATmega328P microcontroller to reboot mid-race.
 
 ---
 
-## 🛠️ Software-Level Solutions (The 4 Rules of Stability)
+## 🛠️ Software-Level Solutions
 To achieve maximum speed without hardware modifications, the firmware implements four software mitigation strategies:
 
 ### 1. Slew Rate Limiting (Rate of Change Filter)
@@ -59,6 +53,6 @@ The robot is most vulnerable to battery rail drops during cornering.
 
 ---
 
-## 🏆 Achievements & Official Credentials
+## Achievements & Official Credentials
 * **1st Place Diploma:** [View Diploma](assets/diploma_robo_intel.jpg) — Official confirmation of securing the 1st place in the 2D-trace category.
 * **ECTS Certificate:** [View Certificate](assets/certificate_robo_intel.jpg) — Confirms the academic workload of **0.5 ECTS credits** awarded for participation and victory.
