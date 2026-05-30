@@ -5,8 +5,7 @@
 
 ![Robot Run Demo](assets/run_demo.gif)
 
-
---
+---
 
 ## 🏁 Track Specifications & Performance
 
@@ -23,33 +22,34 @@ The track features a mix of high-speed straight lines, where the robot actively 
 
 ## 🔴 The Hardware Challenge: Brown-out Reset (BOR)
 During testing, the Pololu 3pi robot suffered from electrical instability:
-* **Static Stability:** High. The robot could run at 100% motor power (255 PWM units) under linear acceleration.
-* **Dynamic Stability:** Low. Rapid changes in motor direction (sudden reverse) or instant acceleration caused the battery power rail voltage to drop below **2.7V**. This voltage drop triggered a **Brown-out Reset (BOR)**, causing the ATmega328P microcontroller to reboot mid-race.
+**Static Stability:** High. The robot could run at 100% motor power (255 PWM units) under linear acceleration.
+**Dynamic Stability:** Low. Rapid changes in motor direction (sudden reverse) or instant acceleration caused the battery power rail voltage to drop below **2.7V**. This voltage drop triggered a **Brown-out Reset (BOR)**, causing the ATmega328P microcontroller to reboot mid-race.
 
 ---
 
 ## 🛠️ Software-Level Solutions
-To achieve maximum speed without hardware modifications, the firmware implements four software mitigation strategies:
 
-### 1. Slew Rate Limiting (Rate of Change Filter)
-Instead of applying PID output directly to the motors, the firmware implements a smoothness filter. 
-* **Implementation:** The motor speed cannot increase by more than `5` units or decrease by more than `9` (or `11` during sharp turns) per loop cycle (1-2 ms).
-* **Impact:** Distributes peak current draw over time, flattening the voltage drop curve and preventing BOR.
+To keep the robot fast and prevent reboots, the code implements four simple but effective rules:
 
-### 2. Deep Reverse Limitation
-While reverse thrust helps with sharp corners, it draws twice the stall current of the motors.
-* **Implementation:** Hard limit on negative motor speed set to `-40` (instead of the theoretical `-255`).
-* **Impact:** Prevents extreme current spikes during rapid directional changes.
+### 1. Smooth Speed Changes (Slew Rate Limit)
+Instead of changing speed instantly, the robot accelerates and brakes gradually.
+Motor speed can only increase by 5 units or decrease by 9–11 units per loop cycle (1-2 ms).  Prevents sudden battery drain that causes the processor to restart.
 
-### 3. Dynamic Braking (Braking before Turning)
-The robot is most vulnerable to battery rail drops during cornering.
-* **Implementation:** The base speed is dynamically calculated based on the current tracking error:
-  $$\text{dynamicSpeed} = \text{BASE\_SPEED} - \frac{|\text{error}|}{9}$$
-* **Impact:** Automatically slows the robot down as the error increases (sharp turns), reducing centripetal force and motor strain.
+### 2. Limited Reverse Speed
+Spinning wheels backward helps with sharp corners, but it consumes too much power.
+We limited the reverse speed to `-40` (instead of the physical maximum of `-255`).  Reduces the heaviest electrical load on the batteries.
 
-### 4. "Soft" PID Tuning with Integer Math
-* **Implementation:** Moderate Proportional gain (`KP_INT = 13`) paired with a high Derivative gain (`KD_INT = 1400`) to act as a damper. Calculations are optimized using bitwise shifts (`>> 8`) instead of slow floating-point math on the 8-bit AVR chip.
-* **Impact:** The high $K_d$ predicts the line early and starts braking smoothly beforehand, eliminating sharp jerks and current spikes.
+### 3. Slowing Down on Turns (Dynamic Braking)
+The robot is under the most stress when cornering.
+The robot automatically slows down when it detects a turn using a simple rule:  
+  `New Speed = Base Speed - (Tracking Error / 9)`
+Reduces motor strain and keeps the robot stable on sharp S-curves.
+
+### 4. Smooth PID & Fast Calculations
+
+We tuned the navigation system to predict turns early and react smoothly.
+The algorithm anticipates corners to avoid sharp jerks. All calculations use fast bit-shifting (`>> 8`) instead of slow division, making the code run instantly on the simple 8-bit processor.
+Eliminates sudden movements and keeps power consumption stable.
 
 ---
 
